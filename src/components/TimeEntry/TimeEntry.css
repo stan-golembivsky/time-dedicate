@@ -1,0 +1,35 @@
+.time-entry {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    height: 32px;
+}
+
+.time-entry__color {
+    width: 32px;
+}
+
+.time-entry__details {
+    flex: 1;
+    display: flex;
+}
+
+.time-entry__cell {
+    font-size: 26px;
+    line-height: 32px;
+    border-left: 1px solid white;
+    padding-left: 10px;
+    width: 105px;
+}
+
+.time-entry__cell_wide {
+    width: 250px;
+}
+
+.time-entry__cell.time-entry__cell_name {
+    min-width: 100px;
+    text-align: left;
+    border-left: none;
+    padding-left: 0;
+    flex: 1;
+}

@@ -1,0 +1,26 @@
+.editable-text {
+    width: 100%;
+    display: flex;
+}
+
+.editable-text__grow {
+    flex: 1;
+}
+
+.editable-text input {
+    padding: 0;
+    margin: 0;
+}
+
+.editable-text_middle input,
+.editable-text_middle .editable-text__text {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32px;
+    height: 32px;
+}
+
+.editable-text_middle input {
+    border-bottom: 1px solid white;
+    border-radius: 0;
+}
