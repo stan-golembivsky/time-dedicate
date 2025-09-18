@@ -1,9 +1,10 @@
 import { Button, ColorPicker } from 'antd';
 import type { ITimeEntry, TimeUnit } from '../../model.ts';
-import { DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import { DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined, EnterOutlined } from '@ant-design/icons';
 import { Duration } from 'luxon';
 
 import './TimeEntry.css'
+
 import EditableText from '../EditableText/EditableText.tsx';
 
 interface ITimeEntryProps {
@@ -104,12 +105,12 @@ function TimeEntry(props: ITimeEntryProps) {
                     }
                 </div>
             </div>
-            {/*<Button*/}
-            {/*    onClick={() => props.goToEntry && props.goToEntry(props.timeEntry)}*/}
-            {/*    icon={<EnterOutlined/>}*/}
-            {/*    variant='outlined'*/}
-            {/*    type='text'*/}
-            {/*    shape='circle'/>*/}
+            <Button
+                onClick={() => props.goToEntry && props.goToEntry(props.timeEntry)}
+                icon={<EnterOutlined/>}
+                variant='outlined'
+                type='text'
+                shape='circle'/>
             <Button
                 onClick={() => props.deleteEntry && props.deleteEntry(props.timeEntry)}
                 icon={<DeleteOutlined />}

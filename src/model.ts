@@ -1,4 +1,5 @@
 export interface ITimeEntry {
+    id: string;
     name: string;
     color: string;
     percentage: number;

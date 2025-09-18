@@ -23,6 +23,8 @@
 
 .time-dedicate__title {
   padding-bottom: 20px;
+  display: flex;
+  gap: 10px;
 }
 
 .time-dedicate__pie-chart {
@@ -30,7 +32,6 @@
   height: 50%;
   border-radius: 50%;
   margin: 0 auto 20px auto;
-  transform: scale(-1, -1);
   box-shadow:
     /* Left shadow */
     -5px -2px 10px #6272A4,
@@ -47,4 +48,12 @@
   line-height: 32px;
   font-weight: 600;
   height: unset;
+}
+
+.time-dedicate__control-label.time-dedicate__control-label_pr10 {
+  padding-right: 10px;
+}
+
+.time-dedicate__control-label.time-dedicate__control-label_pl10 {
+  padding-left: 10px;
 }

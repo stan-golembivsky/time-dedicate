@@ -1,48 +1,31 @@
 import { useState } from 'react';
 
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, RollbackOutlined } from '@ant-design/icons';
 import { Slider, ConfigProvider, theme, Button, Select, Input } from 'antd';
-import {type ITimeEntry, type TimeUnit, unitsInAUnit} from './model.ts';
+import { type ITimeEntry, type TimeUnit, unitsInAUnit } from './model.ts';
 
 import TimeEntry from './components/TimeEntry/TimeEntry.tsx';
 import EditableText from './components/EditableText/EditableText.tsx';
 
 import './App.css';
 
-const testData: ITimeEntry = {
-    color: '#ff0000',
-    name: 'The Project',
-    percentage: 100,
-    children: [
-        {
-            color: '#b93232',
-            name: 'Sub Project#1',
-            percentage: 50,
-        },
-        {
-            color: '#1e3373',
-            name: 'Sub Project#2',
-            percentage: 30,
-        },
-        {
-            color: '#345227',
-            name: 'Sub Project#3',
-            percentage: 10,
-        },
-        {
-            color: '#b99c20',
-            name: 'Sub Project#4',
-            percentage: 10,
-        }
-    ]
-};
+import {type ITimeEntryItems, Store} from './state/store.ts';
+import {convertToTimeEntry, generateUniqueUUID} from './state/state.util.ts';
+const store = Store.getInstance();
 
 function App() {
 
-    const [timeEntry, stTimeEntry] = useState(testData);
+    const projects: ITimeEntryItems = store.getProjects();
+
+    const initialTimeEntry: ITimeEntry = convertToTimeEntry(projects, 'root', true) as ITimeEntry;
+    const [timeEntry, setTimeEntry] = useState(initialTimeEntry);
     const [total, setTotal] = useState(10);
     const [timeUnits, setTimeUnits] = useState('hour');
     const [perTimeUnit, setPerTimeUnit] = useState('week');
+    const [
+        parentId,
+        setParentId
+    ] = useState(projects[initialTimeEntry.id].parentId || null);
 
     let percentSum = 0;
 
@@ -77,10 +60,28 @@ function App() {
         <section className='time-dedicate'>
             <section className='time-dedicate__page'>
                 <section className='time-dedicate__title'>
+                    {
+                        parentId != null ?
+                            <Button
+                                onClick={() => {
+                                    const items: ITimeEntryItems = store.getProjects();
+                                    const parentEntry = convertToTimeEntry(items, parentId, true);
+                                    if (parentEntry) {
+                                        setTimeEntry(parentEntry);
+                                        setParentId(items[parentEntry.id].parentId || null);
+                                    }
+                                }}
+                                icon={<RollbackOutlined />}
+                                variant='outlined'
+                                type='text'
+                                shape='circle'/> : null
+                    }
                     <EditableText
                         text={timeEntry.name}
                         onChange={(text) => {
-                            stTimeEntry({...timeEntry, name: text});
+                            const newTimeEntry: ITimeEntry = {...timeEntry, name: text};
+                            store.updateProject(newTimeEntry.id, newTimeEntry);
+                            setTimeEntry(newTimeEntry);
                         }}/>
                 </section>
                 <section
@@ -97,7 +98,9 @@ function App() {
                         [...values, 100].forEach((v, index) => {
                             actualChildren[index].percentage = index > 0 ? v - values[index - 1] : v;
                         });
-                        stTimeEntry({ ...timeEntry, children: actualChildren });
+                        const newTimeEntry: ITimeEntry = { ...timeEntry, children: actualChildren };
+                        store.updateProject(newTimeEntry.id, newTimeEntry);
+                        setTimeEntry({ ...timeEntry, children: actualChildren });
                     }}
                     styles={{
                         track: { background: 'transparent' },
@@ -122,7 +125,7 @@ function App() {
                                     alert('Please enter a valid number');
                                 }}/>
                             <Select
-                                style={ {width: '100px' }}
+                                style={{ width: '100px' }}
                                 value={timeUnits}
                                 onChange={(value) => {
                                     setTimeUnits(value);
@@ -153,7 +156,7 @@ function App() {
                         </div>
 
                         <div style={{ float: 'right' }}>
-                            <span className='time-dedicate__control-label'>Add new entry </span>
+                            <span className='time-dedicate__control-label'>Add new entry</span>
                             <Button
                                 onClick={() => {
                                     let percentage = 0;
@@ -161,20 +164,28 @@ function App() {
                                     if (children.length === 0) {
                                         percentage = 100;
                                     } else {
-                                        children.forEach(entry => {
-                                            if (entry.percentage > 1) {
-                                                entry.percentage -= 1;
-                                                percentage++;
+                                        let maxIndex = 0;
+                                        let maxPercentage = 0;
+                                        children.forEach(child => {
+                                            if (child.percentage > maxPercentage) {
+                                                maxPercentage = child.percentage;
+                                                maxIndex = children.indexOf(child);
                                             }
                                         });
+                                        percentage = Math.floor(maxPercentage / 2);
+                                        children[maxIndex].percentage -= percentage;
                                     }
                                     children.push({
+                                        id: generateUniqueUUID(),
                                         color: '#' + Math.floor(Math.random() * 16777215).toString(16),
-                                        name: 'New Entry',
+                                        name: 'New SubProject' + (children.length + 1),
                                         percentage
                                     });
-                                    stTimeEntry({...timeEntry, children});
+                                    const newTimeEntry: ITimeEntry = {...timeEntry, children};
+                                    store.updateProject(newTimeEntry.id, newTimeEntry);
+                                    setTimeEntry(newTimeEntry);
                                 }}
+                                disabled={timeEntry.children != null && timeEntry.children.length === 15}
                                 icon={<PlusOutlined/>}
                                 variant='outlined'
                                 type='text'
@@ -195,32 +206,40 @@ function App() {
                                         const temp = children[idx + 1];
                                         children[idx + 1] = children[idx];
                                         children[idx] = temp;
-                                        stTimeEntry({...timeEntry, children});
+                                        setTimeEntry({...timeEntry, children});
                                     }
                                 }}
                                 moveEntryUp={(ent) => {
-                                    const children = [...(timeEntry.children || [])];
-                                    const idx = children.indexOf(ent);
+                                    const children: ITimeEntry[] = [...(timeEntry.children || [])];
+                                    const idx: number = children.indexOf(ent);
                                     if (idx > 0) {
                                         const temp = children[idx - 1];
                                         children[idx - 1] = children[idx];
                                         children[idx] = temp;
-                                        stTimeEntry({...timeEntry, children});
+                                        const newTimeEntry: ITimeEntry = { ...timeEntry, children };
+                                        store.updateProject(newTimeEntry.id, newTimeEntry);
+                                        setTimeEntry({ ...timeEntry, children });
                                     }
                                 }}
                                 nameChanged={(name: string) => {
-                                    const children = [...(timeEntry.children || [])];
-                                    const idx = children.indexOf(entry);
+                                    const children: ITimeEntry[] = [...(timeEntry.children || [])];
+                                    const idx: number = children.indexOf(entry);
                                     children[idx] = {...children[idx], name};
-                                    stTimeEntry({...timeEntry, children});
+                                    const newTimeEntry = {...timeEntry, children};
+                                    store.updateProject(newTimeEntry.id, newTimeEntry);
+                                    setTimeEntry({...timeEntry, children});
+                                }}
+                                goToEntry={(ent: ITimeEntry) => {
+                                    const items: ITimeEntryItems = store.getProjects();
+                                    setTimeEntry(convertToTimeEntry(items, ent.id, true) as ITimeEntry);
+                                    setParentId(items[ent.id].parentId || null);
                                 }}
                                 deleteEntry={(ent) => {
                                     const children = [...(timeEntry.children || [])];
                                     if (children.length === 1) {
-                                        stTimeEntry({
-                                            ...timeEntry,
-                                            children: []
-                                        });
+                                        const newTimeEntry = { ...timeEntry, children: [] };
+                                        store.updateProject(newTimeEntry.id, newTimeEntry);
+                                        setTimeEntry({ ...timeEntry, children: [] });
                                         return;
                                     }
                                     let percentage = ent.percentage;
@@ -235,7 +254,12 @@ function App() {
                                             }
                                         }
                                     }
-                                    stTimeEntry({
+                                    const newTimeEntry = {
+                                        ...timeEntry,
+                                        children: children.filter(e => e.id !== ent.id)
+                                    };
+                                    store.updateProject(newTimeEntry.id, newTimeEntry);
+                                    setTimeEntry({
                                         ...timeEntry,
                                         children: children.filter(e => e.name !== ent.name)
                                     });
