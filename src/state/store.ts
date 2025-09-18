@@ -11,35 +11,35 @@ const defaultTimeEntries: ITimeEntryItems = {
     root: {
         id: 'root',
         color: '#935656',
-        name: 'The Project',
+        name: 'My Free Time',
         percentage: 100,
         children: ['child1', 'child2', 'child3', 'child4']
     },
     child1: {
         id: 'child1',
         color: '#485d8d',
-        name: 'Sub Project#1',
+        name: 'Spanish classes',
         parentId: 'root',
         percentage: 25,
     },
     child2: {
         id: 'child2',
         color: '#633e77',
-        name: 'Sub Project#2',
+        name: 'Practice Guitar',
         parentId: 'root',
         percentage: 25,
     },
     child3: {
         id: 'child3',
         color: '#37572b',
-        name: 'Sub Project#3',
+        name: 'Workout',
         parentId: 'root',
         percentage: 25,
     },
     child4: {
         id: 'child4',
         color: '#8c792b',
-        name: 'Sub Project#4',
+        name: 'Read a book',
         parentId: 'root',
         percentage: 25,
     }

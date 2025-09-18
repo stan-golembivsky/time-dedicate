@@ -3,6 +3,7 @@
     display: flex;
     gap: 10px;
     height: 32px;
+    margin-top: 10px;
 }
 
 .time-entry__color {

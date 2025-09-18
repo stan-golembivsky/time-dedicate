@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "amazon-deploy": "sh deploy/deploy.sh 'time-dedicate-key.pem' ubuntu@ec2-54-242-102-53.compute-1.amazonaws.com"
   },
   "dependencies": {
     "antd": "^5.27.3",

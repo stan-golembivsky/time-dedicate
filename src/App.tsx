@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { PlusOutlined, RollbackOutlined } from '@ant-design/icons';
-import { Slider, ConfigProvider, theme, Button, Select, Input } from 'antd';
+import {Slider, ConfigProvider, theme, Button, Select, Input, Typography, Divider, Collapse} from 'antd';
 import { type ITimeEntry, type TimeUnit, unitsInAUnit } from './model.ts';
 
 import TimeEntry from './components/TimeEntry/TimeEntry.tsx';
@@ -59,6 +59,28 @@ function App() {
     return <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
         <section className='time-dedicate'>
             <section className='time-dedicate__page'>
+                <Typography.Title>Time Dedication & Visualisation Tool</Typography.Title>
+                <Collapse
+                    items={[{
+                        key: '1',
+                        label: 'Description',
+                        children: <div>
+                            <p>
+                                This tool helps you allocate and visualize how you dedicate your free time across various activities or projects. <br/>
+                                You can create multiple entries, assign them a percentage of your total free time, and see a visual representation of your allocation. <br/>
+                                Adjust the sliders to change the percentage distribution and add or remove entries as needed. <br/>
+                                This can help you manage your time more effectively and ensure a balanced approach to your leisure activities.
+                            </p>
+                            <p>
+                                Also you can go into the activity and do the same on the level of tasks within that activity.
+                            </p>
+                            <p>
+                                This info is not stored anywhere! It is a simple front-end app.
+                            </p>
+                        </div>
+                    }]}
+                />
+                <Divider/>
                 <section className='time-dedicate__title'>
                     {
                         parentId != null ?
